@@ -10,16 +10,20 @@ function App() {
 
   const handleSubmit = async () => {
     setIsProcessing(true);
-
+  
     try {
-      // Send the request to the Flask API to get the summary
-      const response = await fetch('http://localhost:5002/');
+      const response = await fetch('http://localhost:5002/summary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url })
+      });
       if (!response.ok) throw new Error("Failed to fetch summary");
-
-      // Parse the JSON response
+  
       const data = await response.json();
-      setSummary(data.summary);  // Extract and set the summary
-
+      setSummary(data.summary);
+  
     } catch (error) {
       console.error("Error:", error);
       alert("There was an error fetching the summary.");
@@ -27,6 +31,7 @@ function App() {
       setIsProcessing(false);
     }
   };
+  
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
