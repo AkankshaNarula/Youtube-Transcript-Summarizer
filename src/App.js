@@ -4,39 +4,28 @@ import jsPDF from 'jspdf';
 
 function App() {
   const [url, setUrl] = useState('');
-  const [embedUrl, setEmbedUrl] = useState('');
   const [summary, setSummary] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [language, setLanguage] = useState('en');
 
   const handleSubmit = async () => {
-    if (!url) return;
+    setIsProcessing(true);
 
-    const videoId = extractVideoId(url);
+    try {
+      // Send the request to the Flask API to get the summary
+      const response = await fetch('http://localhost:5002/');
+      if (!response.ok) throw new Error("Failed to fetch summary");
 
-    if (videoId) {
-      setIsProcessing(true);
+      // Parse the JSON response
+      const data = await response.json();
+      setSummary(data.summary);  // Extract and set the summary
 
-      // Mock API call for summarization
-      setTimeout(() => {
-        if (language === 'en') {
-          setSummary('This is a mock summary of the video in English.');
-        } else if (language === 'hi') {
-          setSummary('यह वीडियो का एक नकली सारांश है।');
-        }
-        setIsProcessing(false);
-      }, 2000);
-
-      setEmbedUrl(`https://www.youtube.com/embed/${videoId}`);
-    } else {
-      alert('Invalid YouTube URL');
+    } catch (error) {
+      console.error("Error:", error);
+      alert("There was an error fetching the summary.");
+    } finally {
+      setIsProcessing(false);
     }
-  };
-
-  const extractVideoId = (url) => {
-    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/;
-    const matches = url.match(regex);
-    return matches ? matches[1] : null;
   };
 
   const handleDownloadPDF = () => {
@@ -70,17 +59,6 @@ function App() {
         </div>
 
         <div className="content-section">
-          <div className="video-box">
-            <h3>{language === 'en' ? 'Video' : 'वीडियो'}</h3>
-            {embedUrl && (
-              <iframe
-                src={embedUrl}
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            )}
-          </div>
           <div className="summary-box">
             <h3>{language === 'en' ? 'Summarization of YouTube Video' : 'यूट्यूब वीडियो का सारांश'}</h3>
             {isProcessing ? (
