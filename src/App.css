@@ -38,6 +38,43 @@ html, body, #root {
   margin-right: 10px;
 }
 
+.flashcard-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.flashcard {
+  width: 300px;
+  height: 200px;
+  background-color: #009688;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.arrow-btn {
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+}
+
+.arrow-btn:focus {
+  outline: none;
+}
+
+.flashcard-container .arrow-btn {
+  margin: 0 10px;
+}
+
 .input-section button {
   padding: 10px 20px;
   font-size: 16px;
