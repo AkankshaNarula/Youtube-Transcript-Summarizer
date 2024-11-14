@@ -4,13 +4,23 @@ import jsPDF from 'jspdf';
 
 function App() {
   const [url, setUrl] = useState('');
+  const [embedUrl, setEmbedUrl] = useState('');
   const [summary, setSummary] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [language, setLanguage] = useState('en');
 
   const handleSubmit = async () => {
+    if (!url) return;
+
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+      alert('Invalid YouTube URL');
+      return;
+    }
+
+    setEmbedUrl(`https://www.youtube.com/embed/${videoId}`);
     setIsProcessing(true);
-  
+
     try {
       const response = await fetch('http://localhost:5002/summary', {
         method: 'POST',
@@ -31,12 +41,21 @@ function App() {
       setIsProcessing(false);
     }
   };
-  
+
+  const extractVideoId = (url) => {
+    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/;
+    const matches = url.match(regex);
+    return matches ? matches[1] : null;
+  };
 
   const handleDownloadPDF = () => {
+    if (!summary) return; // Only proceed if there is a summary
+
     const doc = new jsPDF();
+    doc.setFontSize(16);
     doc.text(language === 'en' ? "YouTube Video Summary" : "यूट्यूब वीडियो सारांश", 20, 20);
-    doc.text(summary, 20, 30);
+    doc.setFontSize(12);
+    doc.text(summary, 20, 30, { maxWidth: 170 });
     doc.save("summary.pdf");
   };
 
@@ -64,6 +83,18 @@ function App() {
         </div>
 
         <div className="content-section">
+          <div className="video-box">
+            <h3>{language === 'en' ? 'Video' : 'वीडियो'}</h3>
+            {embedUrl && (
+              <iframe
+                src={embedUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            )}
+          </div>
+
           <div className="summary-box">
             <h3>{language === 'en' ? 'Summarization of YouTube Video' : 'यूट्यूब वीडियो का सारांश'}</h3>
             {isProcessing ? (
@@ -86,3 +117,4 @@ function App() {
 }
 
 export default App;
+
